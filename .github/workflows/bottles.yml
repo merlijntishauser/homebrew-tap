@@ -8,8 +8,9 @@
 # bottle fits builds from source, as before.
 #
 # Homebrew uses a bottle on the macOS it was built on and on every later
-# one, per chip. So macos-26 also serves macOS 27, and macos-15-intel every
-# Intel Mac from macOS 15 on.
+# one, per chip. So macos-26 also serves macOS 27. Apple silicon only:
+# Homebrew itself no longer has bottles of Python, Rust and OpenSSL for
+# Intel Macs, and without those it does not bottle what depends on them.
 name: bottles
 
 on:
@@ -31,16 +32,17 @@ defaults:
   run:
     shell: bash -xeuo pipefail {0}
 
+# One at a time: a newer run takes the place of one that is still going.
 concurrency:
   group: bottles
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-26, macos-15, macos-15-intel]
+        os: [macos-26, macos-15]
     runs-on: ${{ matrix.os }}
     permissions:
       contents: read
@@ -149,6 +151,25 @@ jobs:
           echo "count=${count}" >> "${GITHUB_OUTPUT}"
           echo "::notice title=Bottles to publish::${count}"
 
+      # A publish that stopped halfway left its bottles on the release, and
+      # a file of the same name cannot be uploaded twice. So what is about
+      # to be uploaded is taken off first; there is nothing to take off on
+      # a first try.
+      - name: Make room for a second try
+        if: steps.any.outputs.count != '0'
+        working-directory: bottles
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for json in *.bottle.json
+          do
+            tag="$(jq -r '.[].bottle.root_url' "${json}" | sed 's#.*/releases/download/##')"
+            for name in $(jq -r '.[].bottle.tags[].filename' "${json}")
+            do
+              gh release delete-asset "${tag}" "${name}" --repo "${GITHUB_REPOSITORY}" --yes || true
+            done
+          done
+
       # Puts the bottles on a release named after the formula and its
       # version, writes the bottle block into the formula and commits that.
       - name: Publish, and write the bottle block
@@ -166,9 +187,10 @@ jobs:
         if: steps.any.outputs.count != '0'
         uses: Homebrew/actions/git-try-push@e99025eb970cfa124b8284a35463d87426917478 # 2026.09.28.1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # No token here: "Set up Homebrew" already left one with git for this repository, and a second one makes GitHub refuse the push.
           directory: ${{ steps.set-up-homebrew.outputs.repository-path }}
           branch: main
+          tries: 3
 
       - name: Say what went wrong
         if: failure()
