@@ -5,8 +5,8 @@ class KoboHardcoverSync < Formula
 
   desc "Reading progress from a stock Kobo e-reader to Hardcover"
   homepage "https://github.com/merlijntishauser/kobo-hardcover-sync"
-  url "https://files.pythonhosted.org/packages/5b/bb/db29dfccb9fa80fb27ee39a5501b7b67198a2bd88f91356e2311122558ad/kobo_hardcover_sync-0.2.0.tar.gz"
-  sha256 "8ebf4fffc58b1a9abe3e18a3aac0043b8783908d4c20b4dfda766c3cefa5e9d1"
+  url "https://files.pythonhosted.org/packages/d6/29/ac8993802065eee68aec0e47062139fd3147e31c47b62f8045401ae13a1c/kobo_hardcover_sync-0.2.1.tar.gz"
+  sha256 "a74327034c0fb6b0546379d9198cac7c65df1b729f226f6ee4471de1e3200f6b"
   license "MIT"
   head "https://github.com/merlijntishauser/kobo-hardcover-sync.git", branch: "main"
 
