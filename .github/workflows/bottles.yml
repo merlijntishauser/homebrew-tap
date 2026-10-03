@@ -1,0 +1,177 @@
+# Bottles: the formulae of this tap, built once here so that nobody has to
+# build them at home.
+#
+# When a formula on main has no `bottle do` block (a release writes the
+# formula anew, without one), each macOS below builds it, tests it and
+# hands over a bottle. The last job puts the bottles on a release of this
+# repository and writes the block into the formula on main. A Mac that no
+# bottle fits builds from source, as before.
+#
+# Homebrew uses a bottle on the macOS it was built on and on every later
+# one, per chip. So macos-26 also serves macOS 27, and macos-15-intel every
+# Intel Mac from macOS 15 on.
+name: bottles
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - Formula/**
+      - .github/workflows/bottles.yml
+  workflow_dispatch:
+    inputs:
+      formulae:
+        description: Formulae to build again, comma-separated (default, those without a bottle)
+        required: false
+
+permissions: {}
+
+defaults:
+  run:
+    shell: bash -xeuo pipefail {0}
+
+concurrency:
+  group: bottles
+  cancel-in-progress: false
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-26, macos-15, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    steps:
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@e99025eb970cfa124b8284a35463d87426917478 # 2026.09.28.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Which formulae have no bottle yet
+        id: plan
+        env:
+          ASKED: ${{ inputs.formulae }}
+          TAP_PATH: ${{ steps.set-up-homebrew.outputs.repository-path }}
+        run: |
+          if [[ -n "${ASKED}" ]]
+          then
+            formulae="${ASKED}"
+          else
+            formulae="$(cd "${TAP_PATH}" && { grep -L '^  bottle do' Formula/*.rb || true; } | sed 's#^Formula/##; s#\.rb$##' | paste -sd, -)"
+          fi
+          echo "formulae=${formulae}" >> "${GITHUB_OUTPUT}"
+          echo "::notice title=To build on ${{ matrix.os }}::${formulae:-nothing: every formula has its bottle}"
+
+      - name: Cache Homebrew Bundler RubyGems
+        if: steps.plan.outputs.formulae != ''
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.set-up-homebrew.outputs.gems-path }}
+          key: ${{ matrix.os }}-rubygems-${{ steps.set-up-homebrew.outputs.gems-hash }}
+          restore-keys: ${{ matrix.os }}-rubygems-
+
+      - if: steps.plan.outputs.formulae != ''
+        run: brew test-bot --only-cleanup-before
+
+      - if: steps.plan.outputs.formulae != ''
+        run: brew test-bot --only-setup
+
+      - if: steps.plan.outputs.formulae != ''
+        run: brew test-bot --only-tap-syntax
+
+      - name: Build, test and bottle
+        if: steps.plan.outputs.formulae != ''
+        env:
+          FORMULAE: ${{ steps.plan.outputs.formulae }}
+        run: brew test-bot --only-formulae --skip-dependents --skip-livecheck --testing-formulae="${FORMULAE}"
+
+      # The log of a job is only for people signed in to GitHub; a note on
+      # the run is for everyone. So what went wrong is said in a note.
+      - name: Say what went wrong
+        if: failure()
+        shell: bash {0}
+        run: |
+          say() {
+            [[ -s "$1" ]] || return 0
+            body="$(tail -c 3500 "$1" | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')"
+            echo "::error title=${{ matrix.os }}, $(basename "$1")::${body}"
+          }
+          say steps_output.txt
+          for log in "${HOME}"/Library/Logs/Homebrew/*/*.log
+          do
+            say "${log}"
+          done | tail -n 6
+
+      - name: Hand over the bottles
+        if: always() && steps.plan.outputs.formulae != ''
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: bottles_${{ matrix.os }}
+          path: '*.bottle.*'
+          if-no-files-found: ignore
+
+  publish:
+    needs: build
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@e99025eb970cfa124b8284a35463d87426917478 # 2026.09.28.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # The commit with the bottle block is the robot's, and says so.
+      - name: Set up git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch the bottles
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: bottles_*
+          merge-multiple: true
+          path: bottles
+
+      - name: Are there any
+        id: any
+        run: |
+          mkdir -p bottles
+          ls -la bottles
+          count="$(find bottles -name '*.bottle.json' | wc -l | tr -d ' ')"
+          echo "count=${count}" >> "${GITHUB_OUTPUT}"
+          echo "::notice title=Bottles to publish::${count}"
+
+      # Puts the bottles on a release named after the formula and its
+      # version, writes the bottle block into the formula and commits that.
+      - name: Publish, and write the bottle block
+        if: steps.any.outputs.count != '0'
+        working-directory: bottles
+        env:
+          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HOMEBREW_GIT_NAME: github-actions[bot]
+          HOMEBREW_GIT_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          HOMEBREW_GIT_COMMITTER_NAME: github-actions[bot]
+          HOMEBREW_GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: brew pr-upload --debug
+
+      - name: Push the formula
+        if: steps.any.outputs.count != '0'
+        uses: Homebrew/actions/git-try-push@e99025eb970cfa124b8284a35463d87426917478 # 2026.09.28.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          directory: ${{ steps.set-up-homebrew.outputs.repository-path }}
+          branch: main
+
+      - name: Say what went wrong
+        if: failure()
+        shell: bash {0}
+        run: |
+          cd "${{ steps.set-up-homebrew.outputs.repository-path }}" && git status --short | head -20 | sed 's/^/::error title=publish, git status::/'
