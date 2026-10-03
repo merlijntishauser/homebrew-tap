@@ -129,6 +129,6 @@ class KoboHardcoverSync < Formula
     assert_match "kobo-hardcover-sync", shell_output("#{bin}/kobo-hardcover-sync --version")
     # A folder of its own: nothing is set up there, and it says so.
     ENV["KHS_HOME"] = testpath.to_s
-    assert_match "not set up", shell_output("#{bin}/kobo-hardcover-sync status")
+    assert_match(/not set up/i, shell_output("#{bin}/kobo-hardcover-sync status"))
   end
 end

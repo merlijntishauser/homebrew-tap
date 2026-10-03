@@ -91,6 +91,13 @@ jobs:
           FORMULAE: ${{ steps.plan.outputs.formulae }}
         run: brew test-bot --only-formulae --skip-dependents --skip-livecheck --testing-formulae="${FORMULAE}"
 
+      # The step above can end well without a bottle (a formula whose own
+      # test fails is only noted). No bottle is a failure here.
+      - name: A bottle came out of it
+        if: steps.plan.outputs.formulae != ''
+        run: |
+          ls ./*.bottle.json || { echo "::error title=${{ matrix.os }}::No bottle was made: the build or the formula's own test failed. The notes of this job say which."; exit 1; }
+
       # The log of a job is only for people signed in to GitHub; a note on
       # the run is for everyone. So what went wrong is said in a note.
       - name: Say what went wrong
