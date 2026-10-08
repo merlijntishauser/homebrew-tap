@@ -10,6 +10,13 @@ class KoboHardcoverSync < Formula
   license "MIT"
   head "https://github.com/merlijntishauser/kobo-hardcover-sync.git", branch: "main"
 
+  bottle do
+    root_url "https://github.com/merlijntishauser/homebrew-tap/releases/download/kobo-hardcover-sync-0.10.1"
+    rebuild 1
+    sha256 cellar: :any, arm64_tahoe:   "79762b3a3b8ecae2f274010770e47affa883f088e62279018747663948f23308"
+    sha256 cellar: :any, arm64_sequoia: "be6b12426b0a893da5277c0bb5241daa1f895885fca11ff9e27ebf9c46b9380e"
+  end
+
   # pydantic-core and cryptography are written in Rust; cryptography links
   # against OpenSSL, PyYAML against libyaml, cffi against libffi.
   depends_on "pkgconf" => :build
