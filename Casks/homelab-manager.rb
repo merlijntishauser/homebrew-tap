@@ -1,13 +1,13 @@
 # Written by app/tools/make_cask.py in merlijntishauser/homelab-ops for
-# v0.1.1. Do not edit by hand: cut a release there and run it again.
+# v0.1.2. Do not edit by hand: cut a release there and run it again.
 cask "homelab-manager" do
-  version "0.1.1"
-  sha256 "0750eeaf4e8a56aed4bfe1e51542eb66c64abd302d8b91558241d19d017ce8d2"
+  version "0.1.2"
+  sha256 "4fd453cc66dc819f782253dc754e8f734d2421fcf02c94a328139742069b1940"
 
   # The source repo is private: the asset is fetched through the GitHub API
   # with the token Homebrew already knows (HOMEBREW_GITHUB_API_TOKEN, a token
   # with read access to the repo, for example the one `gh auth token` prints).
-  url "https://api.github.com/repos/merlijntishauser/homelab-ops/releases/assets/650380927",
+  url "https://api.github.com/repos/merlijntishauser/homelab-ops/releases/assets/650415472",
       header: [
         "Accept: application/octet-stream",
         "Authorization: Bearer #{ENV.fetch("HOMEBREW_GITHUB_API_TOKEN", "")}",
