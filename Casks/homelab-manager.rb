@@ -11,13 +11,12 @@ cask "homelab-manager" do
       header: [
         "Accept: application/octet-stream",
         "Authorization: Bearer #{ENV.fetch("HOMEBREW_GITHUB_API_TOKEN", "")}",
-      ],
-      verified: "api.github.com/repos/merlijntishauser/homelab-ops/"
+      ]
   name "Homelab Manager"
   desc "The homelab as a rack: capacity, baseline checklist, confirmed updates and reboots"
   homepage "https://github.com/merlijntishauser/homelab-ops"
 
-  depends_on macos: ">= :sequoia"
+  depends_on macos: :sequoia
   depends_on arch: :arm64
 
   app "Homelab Manager.app"
