@@ -5,17 +5,10 @@ class KoboHardcoverSync < Formula
 
   desc "Reading progress from a stock Kobo e-reader to Hardcover"
   homepage "https://github.com/merlijntishauser/kobo-hardcover-sync"
-  url "https://files.pythonhosted.org/packages/c0/2e/11a78494eabe88224b69ccc49e08e630b4fc9ac0902c99cf183a610de0d1/kobo_hardcover_sync-0.16.0.tar.gz"
-  sha256 "cab25a00371a33f8a3fb33c1b1870b7444c51a2c0ef2a1d16f7a3a09ed0f2a49"
+  url "https://files.pythonhosted.org/packages/20/1c/632f44ee832437e07b3bd30cb91dad37e9fe6c10f698d2cb4916a89b93dc/kobo_hardcover_sync-0.17.0.tar.gz"
+  sha256 "33c33bd067a841786a70ee3337771144d6acaacf0a2f20d08a2249df73d0616f"
   license "MIT"
   head "https://github.com/merlijntishauser/kobo-hardcover-sync.git", branch: "main"
-
-  bottle do
-    root_url "https://github.com/merlijntishauser/homebrew-tap/releases/download/kobo-hardcover-sync-0.16.0"
-    rebuild 1
-    sha256 cellar: :any, arm64_tahoe:   "24c7d951fb4b34e6c3c0017d140e9396d0c4cae86a0d63353827392e18d308b8"
-    sha256 cellar: :any, arm64_sequoia: "0c345fb00410d9e5a018c59183618b5a5edecce36636d1f5a7000cc6fc40935f"
-  end
 
   # pydantic-core and cryptography are written in Rust; cryptography links
   # against OpenSSL, PyYAML against libyaml, cffi against libffi.
