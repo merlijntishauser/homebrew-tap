@@ -1,21 +1,14 @@
 # Written by packaging/homebrew/make_formula.py from uv.lock. Do not edit by
 # hand: change the lock file and write it again.
-class KoboHardcoverSync < Formula
+class Lastread < Formula
   include Language::Python::Virtualenv
 
   desc "Reading progress from a stock Kobo e-reader to Hardcover"
-  homepage "https://github.com/merlijntishauser/kobo-hardcover-sync"
-  url "https://files.pythonhosted.org/packages/b8/bb/4a90b9635d64d1d1db2f7fe37150d4b33ff63857cdcd74cac78cc4bd4ab2/kobo_hardcover_sync-0.19.0.tar.gz"
-  sha256 "1f7a4b7f71fb114d537fc62df700287e36eb8f2d84ad64f932b130c23ad3896a"
+  homepage "https://github.com/merlijntishauser/lastread"
+  url "https://files.pythonhosted.org/packages/4c/98/de2e84aec9afcfad6060a7c1176a9985966dfe533b119423ac0ba689db49/lastread-0.20.0.tar.gz"
+  sha256 "750e9003282979dd7857b8d01179e7b911e0c3c950df447580aefb38001a0828"
   license "MIT"
-  head "https://github.com/merlijntishauser/kobo-hardcover-sync.git", branch: "main"
-
-  bottle do
-    root_url "https://github.com/merlijntishauser/homebrew-tap/releases/download/kobo-hardcover-sync-0.19.0"
-    rebuild 1
-    sha256 cellar: :any, arm64_tahoe:   "f80ef3c6a64327d4dc634f86847eb740c18e8db1403257cdf0e4c066e94dc6f3"
-    sha256 cellar: :any, arm64_sequoia: "dc4099d22626ec8729fba14b9909c5b517f008e5cdef034122f1ec95c7a27d3e"
-  end
+  head "https://github.com/merlijntishauser/lastread.git", branch: "main"
 
   # pydantic-core and cryptography are written in Rust; cryptography links
   # against OpenSSL, PyYAML against libyaml, cffi against libffi.
@@ -120,22 +113,22 @@ class KoboHardcoverSync < Formula
   def caveats
     <<~EOS
       To finish, run:
-        kobo-hardcover-sync setup
+        lastread setup
       It makes the trigger that syncs when the Kobo is plugged in, and says
       which permission to give (on a Mac: Full Disk Access, once; it stays
       through upgrades).
 
-      Before `brew uninstall kobo-hardcover-sync`, run:
-        kobo-hardcover-sync uninstall
+      Before `brew uninstall lastread`, run:
+        lastread uninstall
       or the trigger stays behind. Your books, settings and tokens are kept
-      either way; `kobo-hardcover-sync uninstall --purge` removes them.
+      either way; `lastread uninstall --purge` removes them.
     EOS
   end
 
   test do
-    assert_match "kobo-hardcover-sync", shell_output("#{bin}/kobo-hardcover-sync --version")
+    assert_match "lastread", shell_output("#{bin}/lastread --version")
     # A folder of its own: nothing is set up there, and it says so.
     ENV["KHS_HOME"] = testpath.to_s
-    assert_match(/not set up/i, shell_output("#{bin}/kobo-hardcover-sync status"))
+    assert_match(/not set up/i, shell_output("#{bin}/lastread status"))
   end
 end
