@@ -5,22 +5,16 @@ class Lastread < Formula
 
   desc "Reading progress from a stock Kobo e-reader to Hardcover"
   homepage "https://github.com/merlijntishauser/lastread"
-  url "https://files.pythonhosted.org/packages/95/d3/184c2901f686c5e231dd24ee70a009dae006de12913e96f89b4c4f68d626/lastread-0.20.1.tar.gz"
-  sha256 "4f88ff7b9260fb15695bc8f1983dd395698db4648f85a9758294142a50f7073e"
+  url "https://files.pythonhosted.org/packages/e5/31/88d86492cdfafb646afc1375d9bc237710c6fb826e17cb59bdd567b46b1e/lastread-0.21.0.tar.gz"
+  sha256 "ae2ce5acf85836a556fbfd41990696bd3316373bb6f08b870faa4bd45ec67c4d"
   license "MIT"
   head "https://github.com/merlijntishauser/lastread.git", branch: "main"
-
-  bottle do
-    root_url "https://github.com/merlijntishauser/homebrew-tap/releases/download/lastread-0.20.1"
-    rebuild 1
-    sha256 cellar: :any, arm64_tahoe:   "9bdaed335ac3ab86962262c4185d30752425072312261234830091835c75c1d0"
-    sha256 cellar: :any, arm64_sequoia: "136782d78b56b9c79d2ecc8badedf988e28c90b7982d0fcf909adca851b8f9f2"
-  end
 
   # pydantic-core and cryptography are written in Rust; cryptography links
   # against OpenSSL, PyYAML against libyaml, cffi against libffi.
   depends_on "pkgconf" => :build
   depends_on "rust" => :build
+  depends_on "kepubify" # the books of a to-kobo folder go on the Kobo as kepub (rule P7)
   depends_on "libyaml"
   depends_on "openssl@3"
   depends_on "python@3.13"
