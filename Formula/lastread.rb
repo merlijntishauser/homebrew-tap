@@ -5,17 +5,10 @@ class Lastread < Formula
 
   desc "Reading progress from a stock Kobo e-reader to Hardcover"
   homepage "https://github.com/merlijntishauser/lastread"
-  url "https://files.pythonhosted.org/packages/97/84/31eeb1d6c904d4c9f1dd7a8ed71c5c5cc7a8a985fbe22fdc37c7df637f99/lastread-0.23.1.tar.gz"
-  sha256 "83c69808a836f858e9cd1266b896b27a0a77c6b1c1f04f5893f26d736f326f1b"
+  url "https://files.pythonhosted.org/packages/fa/2b/292808a9082e27e3bab90d8e293e84e9b9245bdf7b7e6b58250a42af1849/lastread-0.24.0.tar.gz"
+  sha256 "8a072139c9a811d570879a25d4eaf76a7a46d4690e193744979cc6a441b89bd3"
   license "MIT"
   head "https://github.com/merlijntishauser/lastread.git", branch: "main"
-
-  bottle do
-    root_url "https://github.com/merlijntishauser/homebrew-tap/releases/download/lastread-0.23.1"
-    rebuild 1
-    sha256 cellar: :any, arm64_tahoe:   "74774ef56be0c96a2b332b8e0ab13b62e439f0d9deca1a417ecfd129d2d1bd05"
-    sha256 cellar: :any, arm64_sequoia: "6dd673ed8624d7c36831738c2a4e75a494612172073c2a9e00ce983ccc324684"
-  end
 
   # pydantic-core and cryptography are written in Rust; cryptography links
   # against OpenSSL, PyYAML against libyaml, cffi against libffi.
