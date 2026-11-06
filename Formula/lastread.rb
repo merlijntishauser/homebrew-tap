@@ -10,6 +10,13 @@ class Lastread < Formula
   license "MIT"
   head "https://github.com/merlijntishauser/lastread.git", branch: "main"
 
+  bottle do
+    root_url "https://github.com/merlijntishauser/homebrew-tap/releases/download/lastread-0.26.0"
+    rebuild 1
+    sha256 cellar: :any, arm64_tahoe:   "638a288d017cb2d80f9c384d11c3042c0a6ccb19559ac36de23d0d63c89d4d2c"
+    sha256 cellar: :any, arm64_sequoia: "6c33a91db732942bc3a9b53f24ddafefa60e799ba1784735d999d5f86c806ec4"
+  end
+
   # pydantic-core and cryptography are written in Rust; cryptography links
   # against OpenSSL, PyYAML against libyaml, cffi against libffi.
   depends_on "pkgconf" => :build
