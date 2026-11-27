@@ -1,15 +1,15 @@
 # Written by app/tools/make_cask.py in merlijntishauser/homelab-ops for
-# v0.4.27. Do not edit by hand: cut a release there and run it again.
+# v0.4.28. Do not edit by hand: cut a release there and run it again.
 cask "homelab-manager" do
-  version "0.4.27"
-  sha256 "fc2172d066ec01c9b614c2cf53426dc6b1317253ac7f3e6af8be7a2b4b398763"
+  version "0.4.28"
+  sha256 "05bfd150d801734c12c75788cd1a6f74b137e226b63200fe193c90313a11e5ef"
 
   # The source repo is private: the asset is fetched through the GitHub API
   # with the token Homebrew already knows (HOMEBREW_GITHUB_API_TOKEN, a token
   # with read access to the repo, for example the one `gh auth token` prints).
   # The API ignores the version parameter; it is there because Homebrew's
   # audit wants a URL with the version in it, or no checksum at all.
-  url "https://api.github.com/repos/merlijntishauser/homelab-ops/releases/assets/784695330?version=#{version}",
+  url "https://api.github.com/repos/merlijntishauser/homelab-ops/releases/assets/802082634?version=#{version}",
       header: [
         "Accept: application/octet-stream",
         "Authorization: Bearer #{ENV.fetch("HOMEBREW_GITHUB_API_TOKEN", "")}",
